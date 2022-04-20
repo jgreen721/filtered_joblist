@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- displays site properly based on user's device -->
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./images/favicon-32x32.png"
+    />
+
+    <title>Frontend Mentor | Job Listings</title>
+
+    <!-- Feel free to remove these styles or customise in your own stylesheet 👍 -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <div class="hero"></div>
+      <div class="content-container">
+        <div class="filter-row">
+          <div class="filter-tags-row"></div>
+          <div class="filter-clear-div">
+            <button class="clear-btn">clear</button>
+          </div>
+        </div>
+        <div class="jobs-content"></div>
+        <div class="attribution">
+          Challenge by
+          <a href="https://www.frontendmentor.io?ref=challenge" target="_blank"
+            >Frontend Mentor</a
+          >. Coded by <a href="#">Your Name Here</a>.
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var jobsContainer = document.querySelector(".jobs-content");
+      let clearBtn = document.querySelector(".clear-btn");
+      var filterRow = document.querySelector(".filter-tags-row");
+      var jobs = [];
+      fetch("data.json")
+        .then((res) => res.json())
+        .then((res) => {
+          console.log(res);
+          jobs = res;
+          printJobs(jobs);
+        });
+
+      function printJobs(jobs) {
+        jobs.forEach((job) => printJob(job));
+      }
+
+      function printJob(job) {
+        var categories = [job.role, ...job.tools, ...job.languages];
+        console.log(categories);
+        let job_div = document.createElement("div");
+        job_div.className = "job-div";
+        job_div.innerHTML = `<div class="job-flex">
+          <div class="job-col">
+            <div class="job-logo-div">
+                <img class="job-logo" src=${job.logo} alt="logo">
+            </div>
+            <div class="job-content">
+              <div class="company-div">
+                <div class="company-name-div">
+                <h4 class="primary">${job.company}</h4>
+                </div>
+                <div class="features-div">
+
+                </div>
+              </div>
+              <div class="position-div">
+                <h3 class="position-h3">${job.position}</h3>
+              </div>
+              <div class="meta-row">
+                <p class="data-p">${job.postedAt}</p>
+                <p class="dot">*</p>
+                <p class="data-p">${job.contract}</p>
+                <p class="dot">*</p>
+                <p class="data-p">${job.location}</p>
+              </div>
+            </div>
+            <div class="border">
+
+            </div>
+          </div>
+
+        <div class="job-col category-col">
+       </div>
+      </div>`;
+
+        let featureTag = document.createElement("span");
+        let newTag = document.createElement("span");
+        featureTag.classList = "feature-span feature";
+        newTag.classList = "feature-span new";
+        featureTag.innerHTML = "FEATURED";
+        newTag.innerHTML = "NEW!";
+        job.new && job_div.querySelector(".features-div").append(newTag);
+
+        job.featured &&
+          job_div.querySelector(".features-div").append(featureTag);
+
+        categories.forEach((category) => {
+          let catCard = document.createElement("div");
+          catCard.className = "category-panel";
+          catCard.innerHTML = `<h5 class="h5-category">${category}</h5></div>`;
+          job_div.querySelector(".category-col").append(catCard);
+        });
+        jobsContainer.append(job_div);
+      }
+
+      var categories = [
+        "Frontend",
+        "Backend",
+        "Fullstack",
+        "Junior",
+        "Midweight",
+        "Senior",
+        "Python",
+        "Ruby",
+        "Javscript",
+        "HTML",
+        "CSS",
+        "React",
+        "Sass",
+        "Vue",
+        "Django",
+        "RoR",
+      ];
+
+      localStorage.setItem("categories", JSON.stringify(categories));
+
+      categories.forEach((tech) => printCategory(tech));
+
+      function printCategory(category) {
+        let catCard = document.createElement("div");
+        catCard.className = "category-card";
+        catCard.innerHTML = `<h5 class="h5-category">${category}</h5><div class="remove-div"><span class="remove">&times;</span></div></div>`;
+        filterRow.append(catCard);
+        catCard.querySelector(".remove").onclick = (e) => removeCategory(e);
+      }
+
+      function removeCategory(e) {
+        categories = categories.filter(
+          (c) =>
+            c !==
+            e.target.closest(".category-card").querySelector(".h5-category")
+              .textContent
+        );
+        console.log(categories);
+        e.target.closest(".category-card").remove();
+        compareItems(categories);
+      }
+
+      function compareItems(categories) {
+        console.log("compare items");
+        jobsContainer.querySelectorAll(".job-div").forEach((job) => {
+          let jobSkills = Array.from(job.querySelectorAll(".h5-category")).map(
+            (el) => el.textContent
+          );
+          console.log(jobSkills);
+          let shouldHide = true;
+          jobSkills.forEach((skill) => {
+            if (categories.indexOf(skill) !== -1) shouldHide = false;
+          });
+
+          if (shouldHide) job.style.display = "none";
+        });
+      }
+
+      clearBtn.onclick = () => {
+        categories = JSON.parse(localStorage.getItem("categories"));
+        categories.forEach((c) => printCategory(c));
+        jobsContainer
+          .querySelectorAll(".job-div")
+          .forEach((job) => (job.style.display = "flex"));
+      };
+    </script>
+  </body>
+</html>
