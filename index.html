@@ -139,6 +139,10 @@
 
       var categories = [];
       function printCategory(category) {
+        if(categories.indexOf(category) !== -1){
+          console.log("category is already called");
+          return;
+        }
         categories.push(category);
         let catCard = document.createElement("div");
         catCard.className = "category-card";
