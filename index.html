@@ -56,7 +56,7 @@
 
       function printJob(job) {
         var categories = [job.role, ...job.tools, ...job.languages];
-        console.log(categories);
+        // console.log(categories);
         let job_div = document.createElement("div");
         job_div.className = "job-div";
         job_div.innerHTML = `<div class="job-flex">
@@ -107,41 +107,45 @@
         categories.forEach((category) => {
           let catCard = document.createElement("div");
           catCard.className = "category-panel";
+          catCard.onclick = () => printCategory(category);
           catCard.innerHTML = `<h5 class="h5-category">${category}</h5></div>`;
           job_div.querySelector(".category-col").append(catCard);
         });
         jobsContainer.append(job_div);
       }
 
-      var categories = [
-        "Frontend",
-        "Backend",
-        "Fullstack",
-        "Junior",
-        "Midweight",
-        "Senior",
-        "Python",
-        "Ruby",
-        "Javscript",
-        "HTML",
-        "CSS",
-        "React",
-        "Sass",
-        "Vue",
-        "Django",
-        "RoR",
-      ];
+      // var categories = [
+      //   "Frontend",
+      //   "Backend",
+      //   "Fullstack",
+      //   "Junior",
+      //   "Midweight",
+      //   "Senior",
+      //   "Python",
+      //   "Ruby",
+      //   "Javscript",
+      //   "HTML",
+      //   "CSS",
+      //   "React",
+      //   "Sass",
+      //   "Vue",
+      //   "Django",
+      //   "RoR",
+      // ];
 
-      localStorage.setItem("categories", JSON.stringify(categories));
+      // localStorage.setItem("categories", JSON.stringify(categories));
 
-      categories.forEach((tech) => printCategory(tech));
+      // categories.forEach((tech) => printCategory(tech));
 
+      var categories = [];
       function printCategory(category) {
+        categories.push(category);
         let catCard = document.createElement("div");
         catCard.className = "category-card";
         catCard.innerHTML = `<h5 class="h5-category">${category}</h5><div class="remove-div"><span class="remove">&times;</span></div></div>`;
         filterRow.append(catCard);
         catCard.querySelector(".remove").onclick = (e) => removeCategory(e);
+        compareItems(categories);
       }
 
       function removeCategory(e) {
@@ -157,24 +161,40 @@
       }
 
       function compareItems(categories) {
-        console.log("compare items");
+        console.log(
+          "compare items",
+          categories,
+          jobsContainer.querySelectorAll(".job-div").length
+        );
+        if (!categories.length) {
+          jobsContainer
+            .querySelectorAll(".job-div")
+            .forEach((job) => (job.style.display = "flex"));
+          return;
+        }
         jobsContainer.querySelectorAll(".job-div").forEach((job) => {
           let jobSkills = Array.from(job.querySelectorAll(".h5-category")).map(
             (el) => el.textContent
           );
-          console.log(jobSkills);
+          // console.log(jobSkills);
           let shouldHide = true;
           jobSkills.forEach((skill) => {
             if (categories.indexOf(skill) !== -1) shouldHide = false;
           });
 
           if (shouldHide) job.style.display = "none";
+          else {
+            job.style.display = "flex";
+          }
         });
       }
 
       clearBtn.onclick = () => {
-        categories = JSON.parse(localStorage.getItem("categories"));
-        categories.forEach((c) => printCategory(c));
+        categories = [];
+        console.log(filterRow.children);
+        Array.from(filterRow.children).forEach((child) => {
+          filterRow.removeChild(child);
+        });
         jobsContainer
           .querySelectorAll(".job-div")
           .forEach((job) => (job.style.display = "flex"));
